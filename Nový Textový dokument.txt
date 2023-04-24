@@ -1,0 +1,75 @@
+----------------Zde je ukázkový PHP skript, který načte data z určeného zdroje (například databáze) a vypíše je jako XML a JSON soubory.
+
+<?php
+// Načtení dat z databáze
+$conn = new mysqli('localhost', 'username', 'password', 'database_name');
+$result = $conn->query("SELECT * FROM table_name");
+
+// Převod výsledku na pole asociativních polí
+$data = array();
+while ($row = $result->fetch_assoc()) {
+    $data[] = $row;
+}
+
+// Vytvoření XML souboru
+$xml = new SimpleXMLElement('<?xml version="1.0" encoding="UTF-8"?><data></data>');
+foreach ($data as $item) {
+    $xml_item = $xml->addChild('item');
+    foreach ($item as $key => $value) {
+        $xml_item->addChild($key, $value);
+    }
+}
+$xml->asXML('data.xml');
+
+// Vytvoření JSON souboru
+$json = json_encode($data, JSON_PRETTY_PRINT);
+file_put_contents('data.json', $json);
+?>
+
+--------------Zde je ukázkový PHP skript, který vytvoří API pro získání dat a vypíše je jako XML a JSON soubory.
+
+<?php
+// Načtení dat z databáze nebo jiného zdroje
+function getData() {
+    $conn = new mysqli('localhost', 'username', 'password', 'database_name');
+    $result = $conn->query("SELECT * FROM table_name");
+    $data = array();
+    while ($row = $result->fetch_assoc()) {
+        $data[] = $row;
+    }
+    return $data;
+}
+
+// Funkce pro vytvoření XML souboru
+function createXML($data) {
+    $xml = new SimpleXMLElement('<?xml version="1.0" encoding="UTF-8"?><data></data>');
+    foreach ($data as $item) {
+        $xml_item = $xml->addChild('item');
+        foreach ($item as $key => $value) {
+            $xml_item->addChild($key, $value);
+        }
+    }
+    return $xml->asXML();
+}
+
+// Funkce pro vytvoření JSON souboru
+function createJSON($data) {
+    return json_encode($data, JSON_PRETTY_PRINT);
+}
+
+// Nastavení HTTP hlavičky pro XML nebo JSON odpověď
+function setContentType($type) {
+    header("Content-Type: application/" . $type);
+}
+
+// Získání dat a vytvoření odpovědi
+$data = getData();
+$format = isset($_GET['format']) ? $_GET['format'] : 'json';
+if ($format == 'xml') {
+    setContentType('xml');
+    echo createXML($data);
+} else {
+    setContentType('json');
+    echo createJSON($data);
+}
+?>
