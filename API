@@ -1,0 +1,32 @@
+<?php
+
+function loadXMLData() {
+    $data = array(
+        array(
+            'id' => 1,
+            'name' => 'John',
+            'surname' => 'Doe',
+            'age' => 30
+    );
+
+    $xml = new SimpleXMLElement('<data/>');
+    array_walk_recursive($data, array($xml, 'addChild'));
+    return $xml->asXML();
+}
+function loadJSONData() {
+    $data = array(
+            'id' => 2,
+            'name' => 'Jane',
+            'surname' => 'Doe',
+            'age' => 28
+    );
+    
+    return json_encode($data);
+}
+if(isset($_GET['format']) && $_GET['format'] == 'xml') {
+    echo loadXMLData();
+} else {
+    echo loadJSONData();
+}
+
+?>
